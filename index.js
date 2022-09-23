@@ -25,8 +25,8 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(
-    app.listen(5005, function () {
-      console.log("Server is running on Port: 5005");
+    app.listen(5006, function () {
+      console.log("Server is running on Port: 5006");
     })
   );
 

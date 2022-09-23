@@ -19,9 +19,6 @@ const editorSchema = mongoose.Schema({
     trim: true,
     min: 6,
   },
-  passwordConfirm: {
-    type: String,
-  },
 });
 
 const Editor = mongoose.model("editorSchema", editorSchema);
