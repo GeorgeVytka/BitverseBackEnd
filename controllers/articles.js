@@ -131,13 +131,15 @@ export const deleteArticle = async (req, res) => {
 };
 
 export const getArticleByTags = async (req, res) => {
-  const article = req.body;
+  const { tags } = req.body;
 
+  console.log("-=-", tags);
   try {
     const articles = await CreateArticle.find({
-      tags: article.tags,
+      tags: tags,
       isHeadLine: { $eq: false },
     });
+
     res.status(200).json(articles);
   } catch (error) {
     res.status(409).json({ message: error.message });

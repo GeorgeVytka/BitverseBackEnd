@@ -16,7 +16,7 @@ app.use(cors());
 
 app.use("/api/v1", articles);
 app.use("/api/v1/editor", user);
-const PORT = process.env.PORT || 5004;
+const PORT = process.env.PORT || 5005;
 const url = "http://localhost:" + PORT;
 
 mongoose
@@ -25,8 +25,8 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(
-    app.listen(5006, function () {
-      console.log("Server is running on Port: 5006");
+    app.listen(5005, function () {
+      console.log("Server is running on Port: 5005");
     })
   );
 
