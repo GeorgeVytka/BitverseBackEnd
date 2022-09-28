@@ -9,7 +9,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const app = express();
-
+const tempUrl =
+  "mongodb+srv://colt:murrowstudent22@cluster0.gtiaiqr.mongodb.net/?retryWrites=true&w=majority";
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
@@ -20,7 +21,7 @@ const PORT = process.env.PORT || 5005;
 const url = "http://localhost:" + PORT;
 
 mongoose
-  .connect(process.env.MONGO_DB, {
+  .connect(tempUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
