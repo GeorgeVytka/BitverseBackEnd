@@ -15,12 +15,13 @@ export const getAllArticles = async (req, res) => {
 
 export const getAllArticlesByTag = async (req, res) => {
   const { tags } = req.params;
-  console.log("***************", tags);
+  console.log("---", tags);
   try {
     const quryedArticles = await ArticleModel.find({
       tags: { $all: [tags] },
     });
 
+    console.log("---", quryedArticles);
     if (quryedArticles.length == 0) {
       res.status(401).json({ message: "No articles with that tag found" });
     } else {
@@ -105,10 +106,8 @@ export const createArticle = async (req, res) => {
     await newArticle.save();
     await newArticleBody.save();
     res.status(201).json({ message: "Successfull created article" });
-    console.log("article saved");
   } catch (error) {
     res.status(401).json({ message: error.message });
-    console.error("failed to write article");
   }
 };
 
