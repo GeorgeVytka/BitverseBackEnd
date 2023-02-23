@@ -8,7 +8,7 @@ const saltRounds = 10;
 export const signUpAuthor = async (req, res) => {
   const author = {};
 
-  const { Name, Email, Password, Bio, ProfilePic } = req.body;
+  const { Name, Email, Password, Bio, ProfilePic, Socials } = req.body;
   const salt = bcrypt.genSaltSync(saltRounds);
   const hash = bcrypt.hashSync(Password, salt);
 
@@ -17,6 +17,7 @@ export const signUpAuthor = async (req, res) => {
   if (hash) author.Password = hash;
   if (Bio) author.Bio = Bio;
   if (ProfilePic) author.ProfilePic = ProfilePic;
+  if (Socials) author.Socials = Socials;
   const newAuthor = new AutherModel(author);
   try {
     await newAuthor.save();
@@ -29,7 +30,7 @@ export const signUpAuthor = async (req, res) => {
 
 export const getArticleByAuthor = async (req, res) => {
   const { author } = req.body;
-
+  console.log("did it fire");
   try {
     const quryedArticles = await ArticleModel.find({
       author: author,
@@ -42,19 +43,29 @@ export const getArticleByAuthor = async (req, res) => {
 
 export const getAuthor = async (req, res) => {
   const { author } = req.params;
-  console.log("oo ", author);
+  let quryedArticles = {};
   try {
-    const quryedArticles = await AutherModel.find({
+    const quryedAuthor = await AutherModel.find({
       Name: author,
-    });
-    console.log("oo ", quryedArticles);
+    }).then(
+      (quryedArticles = await ArticleModel.find({
+        author: author,
+      }))
+    );
+
     delete quryedArticles.Password;
-    if (quryedArticles.length == 0) {
+
+    quryedAuthor[0].Password = "Not for you";
+    quryedAuthor[0].Email = "Not for you";
+    quryedAuthor[0].Articles = quryedArticles;
+
+    if (quryedAuthor.length == 0) {
       res.status(404).json({ message: "No author with that name" });
     } else {
-      res.status(200).json(quryedArticles);
+      res.status(200).json(quryedAuthor);
     }
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
+  //
 };

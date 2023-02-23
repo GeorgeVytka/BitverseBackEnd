@@ -22,7 +22,8 @@ const authorSchema = mongoose.Schema({
   Post: Number,
   Bio: String,
   ProfilePic: String,
-  Articles: [String],
+  Socials: [{ name: String, link: String }],
+  Articles: [{}],
   Joined: { type: Date, default: Date.now },
 });
 
