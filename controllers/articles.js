@@ -9,18 +9,39 @@ let temp = false;
 
 export const getAllArticles = async (req, res) => {
   try {
-    const articles = await ArticleModel.find({});
+    const headlines = await ArticleModel.find({
+      isHeadLine: { $all: true },
+    })
+      .sort({ createdAt: -1 })
+      .limit(6);
+    const articles = await ArticleModel.find({ isHeadLine: { $all: false } });
+    let temp = { articles, headlines };
 
-    res.status(200).json(articles);
+    res.status(200).json(temp);
     console.log("get all the articles");
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
 };
 
+export const getHeadline = async (req, res) => {
+  console.log("yo::: :");
+  try {
+    const articles = await ArticleModel.find({
+      isHeadLine: { $all: true },
+    })
+      .sort({ createdAt: -1 })
+      .limit(2);
+
+    res.status(200).json(articles);
+  } catch (error) {
+    res.status(404).json({ message: "error.message" });
+  }
+};
+
 export const getAllArticlesByTag = async (req, res) => {
   const { tags } = req.params;
-  console.log("---", tags);
+
   try {
     const quryedArticles = await ArticleModel.find({
       tags: { $all: [tags] },
@@ -28,7 +49,7 @@ export const getAllArticlesByTag = async (req, res) => {
 
     console.log("---", quryedArticles);
     if (quryedArticles.length == 0) {
-      res.status(401).json({ message: "No articles with that tag found" });
+      res.status(401).json({ message: "No articles with that tag found!!" });
     } else {
       console.log("***************", quryedArticles);
       res.status(200).json(quryedArticles);
@@ -186,5 +207,27 @@ export const updateArticleBoby = async (req, res) => {
     return res.status(200).json(articleUpdate);
   } catch (error) {
     res.status(409).json({ message11: error.message });
+  }
+};
+
+export const deleteAerticle = async (req, res) => {
+  const idToDelete = req.body;
+
+  let articleThumbnail = await ArticleModel.findOne({ ID: idToDelete.ID });
+
+  let articleBodies = await BobyModel.findOne({ ID: idToDelete.ID });
+
+  try {
+    let result = await ArticleModel.deleteOne({
+      _id: articleThumbnail._id,
+    });
+
+    let result2 = await BobyModel.deleteOne({
+      _id: articleBodies._id,
+    });
+
+    res.status(200).json({ ArticleThumbnail: result, ArticleBody: result2 });
+  } catch (error) {
+    res.status(401).json({ message: error.message });
   }
 };
