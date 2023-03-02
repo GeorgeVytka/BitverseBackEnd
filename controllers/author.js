@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import AutherModel from "../models/author.js";
 import ArticleModel from "../models/articles.js";
+import { encryptPassword } from "../ult/helper.js";
 const saltRounds = 10;
 
 export const signUpAuthor = async (req, res) => {

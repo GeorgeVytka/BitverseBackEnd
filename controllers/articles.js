@@ -1,6 +1,11 @@
 import express from "express";
 import ArticleModel from "../models/articles.js";
+import AutherModel from "../models/author.js";
 import BobyModel from "../models/articleBody.js";
+import bcrypt from "bcrypt";
+import { AuthAuthor } from "../ult/helper.js";
+const saltRounds = 10;
+let temp = false;
 
 export const getAllArticles = async (req, res) => {
   try {
@@ -62,6 +67,8 @@ export const createArticle = async (req, res) => {
   const {
     title,
     author,
+    authorPassword,
+    email,
     tags,
     isHeadLine,
     thumbnailImg,
@@ -73,6 +80,13 @@ export const createArticle = async (req, res) => {
 
   const thumbNail = {};
   const articleBody = {};
+
+  const quryedAuthor = await AutherModel.find({
+    Name: author,
+  });
+
+  // console.log("000000========= ", quryedAuthor[0].Password);
+
   if (title) thumbNail.title = title;
   if (title) articleBody.title = title;
 
@@ -92,9 +106,7 @@ export const createArticle = async (req, res) => {
   if (author) articleBody.quote = quote;
   if (author) articleBody.articleImgs = articleImgs;
 
-  //if (ID) thumbNail.ID = ID;
-
-  //console.log("000:: ", Date.now());
+  let editor = await AutherModel.findOne({ Email: email });
 
   const newthumbNail = { ...thumbNail, ID: Date.now() };
   const newarticleBody = { ...articleBody, ID: newthumbNail.ID };
@@ -103,9 +115,22 @@ export const createArticle = async (req, res) => {
   const newArticleBody = new BobyModel(newarticleBody);
 
   try {
-    await newArticle.save();
-    await newArticleBody.save();
-    res.status(201).json({ message: "Successfull created article" });
+    let authResponse;
+    if (editor) {
+      authResponse = AuthAuthor(email, authorPassword, editor.Email, editor);
+    } else {
+      res.status(404).json({ message: "Email not matched" });
+      return;
+    }
+
+    if (authResponse.isAuth) {
+      await newArticle.save();
+      await newArticleBody.save();
+      res.status(201).json({ message: "Successfull created article" });
+    } else {
+      res.status(401).json({ message: authResponse.message });
+      return;
+    }
   } catch (error) {
     res.status(401).json({ message: error.message });
   }
