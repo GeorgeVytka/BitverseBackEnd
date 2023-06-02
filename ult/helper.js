@@ -12,7 +12,9 @@ export function AuthAuthor(enterdEmail, authorPassword, dbEmail, editor) {
     return { isAuth: false, message: "Email not match" };
   } else {
     if (editor) {
+      console.log("in the helper");
       let temp = bcrypt.compareSync(authorPassword, editor.Password); // true
+      console.log("in the helper- ", temp);
       if (temp) {
         return { isAuth: true, message: "all good" };
       } else {

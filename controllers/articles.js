@@ -163,10 +163,13 @@ export const updateArticleBoby = async (req, res) => {
     quote,
     body,
     author,
+    email,
+    authorPassword,
     tags,
     isHeadLine,
     articleImgs,
     thumbnailImg,
+
     ID,
   } = req.body;
 
@@ -181,7 +184,7 @@ export const updateArticleBoby = async (req, res) => {
 
   if (body) bodyField.body = body;
   if (author) articleFields.author = author;
-
+  if (authorPassword) articleFields.authorPassword = authorPassword;
   if (author) bodyField.author = author;
 
   if (tags) articleFields.tags = tags;
@@ -190,21 +193,44 @@ export const updateArticleBoby = async (req, res) => {
   if (articleImgs) bodyField.articleImgs = articleImgs;
   if (articleImgs) articleFields.thumbnailImg = thumbnailImg;
   if (isHeadLine) articleFields.isHeadLine = isHeadLine;
-  console.log("00 :: ", req.body._id);
+
   try {
+    let editor = await AutherModel.findOne({ Email: email });
+
+    //console.log("00 :: ", editor);
     let article = await ArticleModel.find({
       _id: req.body._id,
     });
-    console.log("----  ", bodyField);
+    // console.log(editor.Name, "---", article[0].author);
+
     if (article.length === 0)
       return res.status(404).json({ msg: "Article not Found." });
+    if (editor.Name !== article[0].author) {
+      return res.status(404).json({ msg: "wrong editor." });
+    }
 
-    const articleUpdate = await BobyModel.updateOne(
-      { ID: { $eq: article[0].ID } },
-      bodyField
-    );
+    let authResponse;
 
-    return res.status(200).json(articleUpdate);
+    if (editor) {
+      console.log("yo");
+      authResponse = AuthAuthor(email, authorPassword, editor.Email, editor);
+    } else {
+      res.status(404).json({ message: "Email not matched" });
+      return;
+    }
+
+    if (authResponse.isAuth) {
+      // if(editor.Name !== article.author)
+      const articleUpdate = await BobyModel.updateOne(
+        { ID: { $eq: article[0].ID } },
+        bodyField
+      );
+      //console.log(articleFields);
+      return res.status(200).json({ message: articleUpdate });
+    } else {
+      res.status(401).json({ message: authResponse.message });
+      return;
+    }
   } catch (error) {
     res.status(409).json({ message11: error.message });
   }
